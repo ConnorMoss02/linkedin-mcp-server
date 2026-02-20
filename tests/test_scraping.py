@@ -415,6 +415,21 @@ class TestScrapeJob:
         assert "search_results" in result["sections"]
         assert result["sections_requested"] == ["search_results"]
 
+    async def test_search_people(self, mock_page):
+        extractor = LinkedInExtractor(mock_page)
+        with patch.object(
+            extractor,
+            "extract_page",
+            new_callable=AsyncMock,
+            return_value="Jane Doe\nAI Engineer\nNew York",
+        ):
+            result = await extractor.search_people("AI engineer", "New York")
+
+        assert "keywords=AI+engineer" in result["url"]
+        assert "location=New+York" in result["url"]
+        assert "search_results" in result["sections"]
+        assert result["sections_requested"] == ["search_results"]
+
 
 class TestStripLinkedInNoise:
     def test_strips_footer(self):
